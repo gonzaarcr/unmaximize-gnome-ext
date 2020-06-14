@@ -1,7 +1,8 @@
 {
   "name": "Unmaximize Double Click Panel",
   "description": "Unmaximize the current window on double click on the panel",
-  "uuid": "unmaximize_double_click@gonza.gmail.com",
+  "uuid": "unmaximize-double-click@gonza.com",
+  "url": "https://github.com/gonzaarcr/unmaximize-gnome-ext",
   "shell-version": [
     "3.36"
   ]

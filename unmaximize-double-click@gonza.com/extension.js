@@ -4,9 +4,10 @@ const Gi = imports._gi;
 
 const Main = imports.ui.main;
 
-const panel = imports.ui.main.panel;
+const panel = Main.panel;
 
 let lastClickTime = -1;
+let topBarClickListener_ = null;
 
 let injections = {};
 
@@ -22,9 +23,11 @@ function _tryDragWindow(event) {
 	}
 	// let clickCount = Clutter.get_current_event().get_click_count();
 	let actionDone = false;
-	if (currentTime - lastClickTime < 400 && Main.modalCount === 0) { // && event.source === this) {
+	if (currentTime - lastClickTime < 400
+			&& Main.modalCount === 0
+			&& (event.source === this || event.source === panel.statusArea['appMenu'])) {
+
 		let win = global.display.get_focus_window();
-		// if (!win.maximized_vertically && !win.maximized_horizontally) {
 		if (win && win.get_maximized()) {
 			win.unmaximize(Meta.MaximizeFlags.BOTH);
 			actionDone = true;
@@ -65,8 +68,27 @@ function AppMenuButton_vfunc_event(event) {
 }
 
 
-function listener(_, event) {
+function isParent(child, parent, end) {
+	let ancestor = child;
+	do {
+		if (!ancestor || ancestor === end)
+			return false;
+		if (ancestor === parent)
+			return true;
+
+		ancestor = ancestor.get_parent();
+	} while (true);
+}
+
+
+function listener(source, event) {
 	if (event.get_button() === 1)
+		return Clutter.EVENT_PROPAGATE;
+
+	const [x, y] = event.get_coords();
+	let real_src = event.get_stage().get_actor_at_pos(Clutter.PickMode.ALL, x, y);
+
+	if (!(source === real_src || isParent(real_src, panel.statusArea['appMenu'], panel)))
 		return Clutter.EVENT_PROPAGATE;
 
 	let win = global.display.get_focus_window();
@@ -100,17 +122,18 @@ function enable() {
 	injections._tryDragWindow = panel._tryDragWindow;
 	panel._tryDragWindow = _tryDragWindow;
 
+	// global.log(panel.statusArea['appMenu'].__proto__.vfunc_event)
 	injections.vfunc_event = panel.statusArea['appMenu'].__proto__.vfunc_event;
 	panel.statusArea['appMenu'].__proto__[Gi.hook_up_vfunc_symbol]('event', (event) => {
 		AppMenuButton_vfunc_event(event);
 	})
 
-	topBarClickListener_ = Main.panel.actor.connect("button-press-event", listener);
+	topBarClickListener_ = panel.connect("button-press-event", listener);
 }
 
 
 function disable() {
 	panel._tryDragWindow = injections._tryDragWindow;
 	panel.statusArea['appMenu'].__proto__[Gi.hook_up_vfunc_symbol]('event', injections.vfunc_event);
-	Main.panel.actor.disconnect(topBarClickListener_);
+	panel.disconnect(topBarClickListener_);
 }

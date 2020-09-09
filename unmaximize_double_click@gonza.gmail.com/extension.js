@@ -33,6 +33,14 @@ function _tryDragWindow(event) {
 			actionDone = true;
 		}
 	}
+
+	// The handler on panelMenu that toggles the menu doesn’t stop the event
+	// (the one linked on AppMenuButton_vfunc_event)
+	// We don’t want to be able to drag when closing a menu, nor lose focus
+	// (except on appmenu)
+	if (event.source.hasOwnProperty('menu') && !(event.source === panel.statusArea['appMenu']))
+		actionDone = true
+
 	lastClickTime = currentTime;
 
 	if (!actionDone)
@@ -40,7 +48,6 @@ function _tryDragWindow(event) {
 	else
 		return Clutter.EVENT_STOP;
 }
-
 
 // gitlab.gnome.org/GNOME/gnome-shell/-/blob/master/js/ui/panel.js#L923
 function _tryDragWindow_copy(event) {
@@ -62,6 +69,7 @@ function _tryDragWindow_copy(event) {
 }
 
 
+// Deactivates the appmenu
 // gitlab.gnome.org/GNOME/gnome-shell/-/blob/master/js/ui/panelMenu.js#L133
 function AppMenuButton_vfunc_event(event) {
 	return Clutter.EVENT_PROPAGATE;

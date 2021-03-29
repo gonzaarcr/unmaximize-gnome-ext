@@ -4,6 +4,8 @@
   "uuid": "unmaximize_double_click@gonza.gmail.com",
   "url": "https://github.com/gonzaarcr/unmaximize-gnome-ext",
   "shell-version": [
-    "3.36"
+    "3.36",
+    "3.38",
+    "40"
   ]
 }

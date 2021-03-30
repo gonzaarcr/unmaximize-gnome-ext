@@ -1,6 +1,6 @@
 {
   "name": "Unmaximize Double Click Panel",
-  "description": "Unmaximize the current window on double click on the panel",
+  "description": "Unmaximize the current window on double click on the top panel. You can also maximize horizontally and vertically with middle and right click.",
   "uuid": "unmaximize_double_click@gonza.gmail.com",
   "url": "https://github.com/gonzaarcr/unmaximize-gnome-ext",
   "shell-version": [

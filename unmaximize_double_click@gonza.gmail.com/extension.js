@@ -129,19 +129,32 @@ function init(metadata) {
 function enable() {
 	injections._tryDragWindow = panel._tryDragWindow;
 	panel._tryDragWindow = _tryDragWindow;
-
-	// global.log(panel.statusArea['appMenu'].__proto__.vfunc_event)
-	injections.vfunc_event = panel.statusArea['appMenu'].__proto__.vfunc_event;
-	panel.statusArea['appMenu'].__proto__[Gi.hook_up_vfunc_symbol]('event', (event) => {
-		AppMenuButton_vfunc_event(event);
-	})
+	
+	try {
+		injections.vfunc_event = panel.statusArea['appMenu'].__proto__.vfunc_event;
+		panel.statusArea['appMenu'].__proto__[Gi.hook_up_vfunc_symbol]('event', (event) => {
+			AppMenuButton_vfunc_event(event);
+		});
+	} catch (e) {
+		const appMenuPrototype = Object.getPrototypeOf(panel.statusArea['appMenu']);
+		injections.vfunc_event = appMenuPrototype.vfunc_event;
+		appMenuPrototype[Gi.gobject_prototype_symbol][Gi.hook_up_vfunc_symbol]('event', (event) => {
+			AppMenuButton_vfunc_event(event);
+		});
+	}
 
 	topBarClickListener_ = panel.connect("button-press-event", listener);
 }
 
-
 function disable() {
 	panel._tryDragWindow = injections._tryDragWindow;
-	panel.statusArea['appMenu'].__proto__[Gi.hook_up_vfunc_symbol]('event', injections.vfunc_event);
+	
+	try {
+		panel.statusArea['appMenu'].__proto__[Gi.hook_up_vfunc_symbol]('event', injections.vfunc_event);
+	} catch (e) {
+		const p = Object.getPrototypeOf(panel.statusArea['appMenu']);
+		p[Gi.gobject_prototype_symbol][Gi.hook_up_vfunc_symbol]('event', injections.vfunc_event);
+	}
+
 	panel.disconnect(topBarClickListener_);
 }

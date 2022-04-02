@@ -15,6 +15,7 @@ let injections = {};
 // developer.gnome.org/gtk3/stable/GtkSettings.html#GtkSettings--gtk-double-click-time
 // gtk-double-click-time 400
 // gtk-double-click-distance 5
+// gitlab.gnome.org/GNOME/gnome-shell/-/blob/main/js/ui/panel.js#L558
 function _tryDragWindow(event) {
 	let currentTime = global.get_current_time();
 	if (lastClickTime === -1) {
@@ -23,11 +24,12 @@ function _tryDragWindow(event) {
 	}
 	// let clickCount = Clutter.get_current_event().get_click_count();
 	let actionDone = false;
+	const eventSource = event.get_source();
 	if (currentTime - lastClickTime < 400
 			&& Main.modalCount === 0
-			&& (event.source === this || event.source === panel.statusArea['appMenu'])) {
+			&& (eventSource === this || eventSource === panel.statusArea['appMenu'])) {
 
-		let win = global.display.get_focus_window();
+		const win = global.display.get_focus_window();
 		if (win && win.get_maximized()) {
 			win.unmaximize(Meta.MaximizeFlags.BOTH);
 			actionDone = true;
@@ -38,7 +40,7 @@ function _tryDragWindow(event) {
 	// (the one linked on AppMenuButton_vfunc_event)
 	// We don’t want to be able to drag when closing a menu, nor lose focus
 	// (except on appmenu)
-	if (event.source.hasOwnProperty('menu') && !(event.source === panel.statusArea['appMenu']))
+	if (eventSource.hasOwnProperty('menu') && !(eventSource === panel.statusArea['appMenu']))
 		actionDone = true
 
 	lastClickTime = currentTime;
@@ -49,7 +51,7 @@ function _tryDragWindow(event) {
 		return Clutter.EVENT_STOP;
 }
 
-// gitlab.gnome.org/GNOME/gnome-shell/-/blob/master/js/ui/panel.js#L923
+// gitlab.gnome.org/GNOME/gnome-shell/-/blob/main/js/ui/panel.js#L923
 function _tryDragWindow_copy(event) {
 	let { x, y } = event;
 	let dragWindow = this._getDraggableWindowForPosition(x);
@@ -70,7 +72,7 @@ function _tryDragWindow_copy(event) {
 
 
 // Deactivates the appmenu
-// gitlab.gnome.org/GNOME/gnome-shell/-/blob/master/js/ui/panelMenu.js#L133
+// gitlab.gnome.org/GNOME/gnome-shell/-/blob/main/js/ui/panelMenu.js#L133
 function AppMenuButton_vfunc_event(event) {
 	return Clutter.EVENT_PROPAGATE;
 }

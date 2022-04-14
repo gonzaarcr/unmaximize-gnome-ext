@@ -24,7 +24,7 @@ function _tryDragWindow(event) {
 	}
 	// let clickCount = Clutter.get_current_event().get_click_count();
 	let actionDone = false;
-	const eventSource = event.get_source();
+	const eventSource = event.source || event.get_source();
 	if (currentTime - lastClickTime < 400
 			&& Main.modalCount === 0
 			&& (eventSource === this || eventSource === panel.statusArea['appMenu'])) {

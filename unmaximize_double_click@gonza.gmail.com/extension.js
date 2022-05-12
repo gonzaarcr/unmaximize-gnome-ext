@@ -45,31 +45,8 @@ function _tryDragWindow(event) {
 
 	lastClickTime = currentTime;
 
-	if (!actionDone)
-		return _tryDragWindow_copy.call(this, event);
-	else
-		return Clutter.EVENT_STOP;
+	return !actionDone ? injections._tryDragWindow.call(this, event) : Clutter.EVENT_STOP;
 }
-
-// gitlab.gnome.org/GNOME/gnome-shell/-/blob/main/js/ui/panel.js#L923
-function _tryDragWindow_copy(event) {
-	let { x, y } = event;
-	let dragWindow = this._getDraggableWindowForPosition(x);
-
-	if (!dragWindow)
-		return Clutter.EVENT_PROPAGATE;
-
-	return global.display.begin_grab_op(
-		dragWindow,
-		Meta.GrabOp.MOVING,
-		false, /* pointer grab */
-		true, /* frame action */
-		event.button || -1,
-		event.modifier_state,
-		event.time,
-		x, y) ? Clutter.EVENT_STOP : Clutter.EVENT_PROPAGATE;
-}
-
 
 // Deactivates the appmenu
 // gitlab.gnome.org/GNOME/gnome-shell/-/blob/main/js/ui/panelMenu.js#L133
@@ -131,7 +108,7 @@ function init(metadata) {
 function enable() {
 	injections._tryDragWindow = panel._tryDragWindow;
 	panel._tryDragWindow = _tryDragWindow;
-	
+
 	try {
 		injections.vfunc_event = panel.statusArea['appMenu'].__proto__.vfunc_event;
 		panel.statusArea['appMenu'].__proto__[Gi.hook_up_vfunc_symbol]('event', (event) => {
@@ -150,7 +127,7 @@ function enable() {
 
 function disable() {
 	panel._tryDragWindow = injections._tryDragWindow;
-	
+
 	try {
 		panel.statusArea['appMenu'].__proto__[Gi.hook_up_vfunc_symbol]('event', injections.vfunc_event);
 	} catch (e) {
